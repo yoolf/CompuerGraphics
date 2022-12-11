@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <style>
-    canvas {
+    canvas {	<!-- 배경 설정 위해 캔버스 객체를 앞에 배치-->
         z-index: 2;
         position: absolute;
     }
@@ -11,14 +11,9 @@
     }
 </style>
 
-<!-- <button id="ButtonY">Rotate Y</button> -->
 <button id="ButtonT">회전 멈추기</button>
 <div> x축 회전 조절 <input id="slider0" type="range" min="-180" max="180" step="5" value="0"></div>
 <div> z축 회전 조절 <input id="slider2" type="range" min="-180" max="180" step="5" value="0"></div>
-<!-- <div><input type="url" name="url" id="url"
-    placeholder="enter image url"
-    pattern="https://.*" size="30"
-    required></div> -->
 
 
 <script id="vertex-shader" type="x-shader/x-vertex">
