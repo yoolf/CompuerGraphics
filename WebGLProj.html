@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<style>
+    canvas {
+        z-index: 2;
+        position: absolute;
+    }
+    #backTexImage {
+        width: 1000px;
+        height: 1000px;
+    }
+</style>
+
+<!-- <button id="ButtonY">Rotate Y</button> -->
+<button id="ButtonT">회전 멈추기</button>
+<div> x축 회전 조절 <input id="slider0" type="range" min="-180" max="180" step="5" value="0"></div>
+<div> z축 회전 조절 <input id="slider2" type="range" min="-180" max="180" step="5" value="0"></div>
+<!-- <div><input type="url" name="url" id="url"
+    placeholder="enter image url"
+    pattern="https://.*" size="30"
+    required></div> -->
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute  vec4 vPosition;
+attribute vec4 vColor;
+attribute  vec3 vNormal;
+attribute  vec2 vTexCoord;
+
+varying vec4 fColor;
+varying vec2 fTexCoord;
+
+uniform vec3 theta;
+
+uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat4 world;
+uniform vec4 lightPosition;
+uniform float shininess;
+
+void main()
+{
+    // 조명 설정
+    vec3 pos = -(modelViewMatrix * vPosition).xyz;
+    
+    //fixed light postion
+    
+    vec3 light = lightPosition.xyz;
+    vec3 L = normalize( light - pos );
+
+	
+    vec3 E = normalize( -pos );
+    vec3 H = normalize( L + E );
+    
+    vec4 NN = vec4(vNormal,0);
+       
+    vec3 N = normalize( (modelViewMatrix*NN).xyz);
+
+    vec4 ambient = ambientProduct;
+
+    float Kd = max( dot(L, N), 0.0 );
+    vec4  diffuse = Kd*diffuseProduct;
+
+    float Ks = pow( max(dot(N, H), 0.0), shininess );
+    vec4  specular = Ks * specularProduct;
+    
+    if( dot(L, N) < 0.0 ) {
+	specular = vec4(0.0, 0.0, 0.0, 1.0);
+    } 
+
+    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+    fColor = ambient + diffuse + specular;  // 조명이 적용된 오브젝트 색상 지정
+    
+    fTexCoord = vTexCoord;
+    fColor.a = 1.0; // 오브젝트 투명도 지정
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+
+varying vec4 fColor;
+varying vec2 fTexCoord;
+
+uniform sampler2D texture;
+void
+main()
+{   
+    // 텍스쳐 이미지가 적용된 fragment shader
+    gl_FragColor = fColor * texture2D( texture, fTexCoord );
+}
+</script>
+
+<script type="text/javascript" src="./webgl-utils.js"></script>
+<script type="text/javascript" src="./initShaders.js"></script>
+<script type="text/javascript" src="./MV.js"></script>
+<script type="text/javascript" src="./WebGLProj.js"></script>
+
+<body>
+    <canvas id="gl-canvas" width="1000" height="1000">
+        Oops ... your browser doesn't support the HTML5 canvas element
+    </canvas>
+    <img id="texImage" src="giphy.gif" crossorigin="anonymous" hidden></img>
+    <img id="backTexImage" src="https://images.unsplash.com/photo-1529864741682-5707855c113f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1090&q=80" crossorigin="anonymous"></img>
+</body>
+
+</html>
